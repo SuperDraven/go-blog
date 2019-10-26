@@ -22,6 +22,7 @@ type Article struct {
 	Details     string             `json:"details"`
 	Disclosure  string             `json:"disclosure"`
 	TopArticle  string             `json:"top_article"`
+	Password    string             `json:"password"`
 	Pv          int                `json:"pv"`
 	//Images      string             `json:"images"`
 }
@@ -70,6 +71,8 @@ func ArticleCreate(c *gin.Context) {
 	article.Disclosure = c.PostForm("disclosure")
 	article.Id = primitive.NewObjectID()
 	article.Status = c.PostForm("status")
+	article.Password = Help.Md5Encryption(c.PostForm("password"))
+
 	_, err := db.Collection("article").InsertOne(ctx, article)
 	category := c.PostFormMap("category")
 	createCategory(article.Id.Hex(), category)
@@ -104,20 +107,63 @@ func ArticleShow(c *gin.Context) {
 	err := db.Collection("article").FindOne(ctx, bson.M{"_id": id}).Decode(&result)
 	categoryIds, categoryIdsArray := articlecategoryShow(person.ID)
 	//category_list := articlecategoryShow(person.ID)
-	result.Articlecategorylist = categoryIdsArray
-	result.Articlelabelllist = articlelabelShow(person.ID)
-	result.Tree = Help.GetTree(categoryIds)
-	//fmt.Println(category_list)
-	if err != nil {
-		log.Fatal(err)
+	if result.Disclosure == "2" {
+		c.JSON(400, gin.H{
+			"message": "error",
+			"data":    "非法操作",
+			"code":    400,
+		})
+	} else {
+		result.Articlecategorylist = categoryIdsArray
+		result.Articlelabelllist = articlelabelShow(person.ID)
+		result.Tree = Help.GetTree(categoryIds)
+		//fmt.Println(category_list)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "success",
+			"data":    result,
+			"code":    http.StatusOK,
+		})
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "success",
-		"data":    result,
-		"code":    http.StatusOK,
-	})
 }
+func ArticlePasswordShow(c *gin.Context) {
+	var result articleShow
+	//var category []*Category
+	db := models.ConnectDb()
+	id, _ := primitive.ObjectIDFromHex(c.PostForm("id"))
+	password := Help.Md5Encryption(c.PostForm("password"))
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	err := db.Collection("article").FindOne(ctx, bson.M{"_id": id, "password": password}).Decode(&result)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"message": "err",
+			"data":    "文章不存在或密码错误",
+			"code":    400,
+		})
+	} else {
+		categoryIds, categoryIdsArray := articlecategoryShow(c.PostForm("id"))
+		//category_list := articlecategoryShow(person.ID)
+		result.Articlecategorylist = categoryIdsArray
+		result.Articlelabelllist = articlelabelShow(c.PostForm("id"))
+		result.Tree = Help.GetTree(categoryIds)
+		//fmt.Println(category_list)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "success",
+			"data":    result,
+			"code":    http.StatusOK,
+		})
+	}
+
+}
+
 func ArticleList(c *gin.Context) {
 	db := models.ConnectDb()
 	var people []Article
@@ -165,6 +211,7 @@ func ArticleEdit(c *gin.Context) {
 	article.Details = c.PostForm("details")
 	article.Disclosure = c.PostForm("disclosure")
 	article.Status = c.PostForm("status")
+	article.Password = Help.Md5Encryption(c.PostForm("password"))
 	article.Id = id
 	category := c.PostFormMap("category")
 	createCategory(article.Id.Hex(), category)

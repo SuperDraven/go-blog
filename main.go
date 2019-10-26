@@ -26,7 +26,6 @@ func Cors() gin.HandlerFunc {
 		} else {
 			headerStr = "access-control-allow-origin, access-control-allow-headers"
 		}
-		c.Writer.Header().Add("Content-Security-Policy", "upgrade-insecure-requests")
 		if origin != "" {
 
 			c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
