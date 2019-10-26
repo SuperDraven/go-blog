@@ -17,7 +17,6 @@ type User struct {
 var DB *mongo.Database
 
 func ConnectDb() *mongo.Database {
-
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(conf.LoadConf().DB))
 	if err != nil {
