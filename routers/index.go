@@ -33,6 +33,7 @@ func SetRouter(r *gin.Engine) {
 	api.GET("/categorylist", controllers.CategoryList)
 	api.GET("/article/show/:id", controllers.ArticleShow)
 	api.POST("/article/passwordshow", controllers.ArticlePasswordShow)
+	api.GET("/article/GetCategoryArticleList/:id", controllers.GetCategoryArticleList)
 	api.POST("/upload_img", Help.UploadImg)
 	api.GET("/show_img", Help.ShowImage)
 	api.PUT("/article/edit/pv/:id", controllers.PvUpdate)

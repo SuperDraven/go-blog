@@ -263,6 +263,57 @@ func ArticleDelete(c *gin.Context) {
 		"code":    200,
 	})
 }
+func GetCategoryArticleList(c *gin.Context) {
+	var person Person
+	if err := c.ShouldBindUri(&person); err != nil {
+		c.JSON(400, gin.H{"message": "error", "data": err, "code": 400})
+		return
+	}
+	db := models.ConnectDb()
+	categoryid := person.ID
+
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	cursor, err := db.Collection("article_category").Find(ctx, bson.M{"categoryid": categoryid})
+	fmt.Println(categoryid)
+	if err != nil {
+		log.Fatal(err)
+	}
+	articleIds := make(map[string]string)
+	var articleIdsArray []primitive.ObjectID
+
+	for cursor.Next(ctx) {
+		var persons ArticleCategoryList
+		cursor.Decode(&persons)
+		fmt.Println(persons)
+		articleIds[persons.ArticleId] = persons.ArticleId
+		objectid, _:= primitive.ObjectIDFromHex(persons.ArticleId)
+		articleIdsArray = append(articleIdsArray, objectid)
+	}
+
+	article, errs := db.Collection("article").Find(ctx, bson.M{"_id": bson.M{"$in": articleIdsArray}})
+	if errs != nil {
+		fmt.Println(errs)
+		log.Fatal(err)
+	}
+	var people []Article
+	fmt.Println(articleIdsArray)
+	for article.Next(ctx) {
+		var articles Article
+		article.Decode(&articles)
+		people = append(people, articles)
+		//articleIds[persons.ArticleId] = persons.ArticleId
+		//articleIdsArray = append(articleIdsArray, persons.ArticleId)
+	}
+
+	defer cursor.Close(ctx)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "success",
+		"data":    people,
+		"code":    http.StatusOK,
+	})
+
+}
 func createCategory(articleId string, data map[string]string) {
 	db := models.ConnectDb()
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
