@@ -37,6 +37,20 @@ func SetRouter(r *gin.Engine) {
 	api.POST("/upload_img", Help.UploadImg)
 	api.GET("/show_img", Help.ShowImage)
 	api.PUT("/article/edit/pv/:id", controllers.PvUpdate)
+	api.POST("/Comment/CommentCreate", controllers.CommentCreate)
+	api.GET("/Comment/CommentShowList/:id", controllers.CommentShowList)
+
+	api.GET("/getCaptcha/GenerateCaptchaHandler", controllers.GenerateCaptchaHandler)
+
+	api.POST("/MessageBoard/MessageBoardCreate", controllers.MessageBoardCreate)
+
+	api.GET("/MessageBoard/MessageBoardListShow", controllers.MessageBoardShowList)
+	//api.GET("/getCaptcha/Getcaptcha/:captchaId", controllers.Getcaptcha)
+	api.GET("/getCaptcha/Getcaptcha/:captchaId", controllers.Getcaptcha)
+	api.GET("/captcha/verify/:captchaId/:value", controllers.CaptchaVerify)
+
+
+
 	admin := api.Group("/admin")
 	admin.POST("/register", controllers.Register)
 	admin.POST("/login", controllers.Login)

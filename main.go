@@ -50,7 +50,10 @@ func Cors() gin.HandlerFunc {
 		c.Next() //  处理请求
 	}
 }
-
+type CaptchaResponse struct {
+	CaptchaId string `json:"captchaId"` //验证码Id
+	ImageUrl  string `json:"imageUrl"`  //验证码图片url
+}
 func main() {
 	r := gin.Default()
 	r.Use(Cors())
