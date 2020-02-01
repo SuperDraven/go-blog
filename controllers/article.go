@@ -77,6 +77,22 @@ func ArticleShow(c *gin.Context) {
 	Help.ReturnResponse(data, http.StatusOK, "error", c)
 }
 
+func ArticleAdminShow(c *gin.Context) {
+	var person Person
+	data := map[string]interface{} {"data": "展示"}
+
+	if err := c.ShouldBindUri(&person); err != nil {
+		data["data"] = err
+		Help.ReturnResponse(data, 400, "error", c)
+		return
+	}
+	id, _ := primitive.ObjectIDFromHex(person.ID)
+	result, _ := Services.ServiceArticleShow(id)
+	data["data"] = result
+	Help.ReturnResponse(data, http.StatusOK, "error", c)
+}
+
+
 func ArticlePasswordShow(c *gin.Context) {
 	//var category []*Category
 	id, _ := primitive.ObjectIDFromHex(c.PostForm("id"))

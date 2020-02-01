@@ -3,6 +3,7 @@ package routers
 import (
 	"blog/Help"
 	"blog/controllers"
+	"blog/controllers/laboratory"
 	"github.com/gin-gonic/gin"
 )
 
@@ -49,7 +50,10 @@ func SetRouter(r *gin.Engine) {
 	api.GET("/getCaptcha/Getcaptcha/:captchaId", controllers.Getcaptcha)
 	api.GET("/captcha/verify/:captchaId/:value", controllers.CaptchaVerify)
 
+	api.GET("/timeline/list", controllers.TimeLineList)
 
+	api.POST("/laboratory/LaboratoryConverttouppercase", laboratory.LaboratoryConverttouppercase)
+	api.POST("/laboratory/LaboratoryConverttolowercase", laboratory.LaboratoryConverttolowercase)
 
 	admin := api.Group("/admin")
 	admin.POST("/register", controllers.Register)
@@ -57,24 +61,31 @@ func SetRouter(r *gin.Engine) {
 	//admin.Use(GetMiddleware())
 	//admin.GET("/site", controllers.Test)
 
+	//文章
 	admin.POST("/article/create", controllers.ArticleCreate)
 	admin.GET("/article/list", controllers.ArticleList)
 	admin.PUT("/article/edit/:id", controllers.ArticleEdit)
-	admin.GET("/article/show/:id", controllers.ArticleShow)
+	admin.GET("/article/show/:id", controllers.ArticleAdminShow)
 	admin.DELETE("/article/delete/:id", controllers.ArticleDelete)
 
+	//分类
 	admin.POST("/category/create", controllers.CategoryCreate)
 	admin.GET("/category/list", controllers.CategoryList)
 	admin.GET("/category/treelist", controllers.CategoryTreeList)
 	admin.GET("/category/show/:id", controllers.CategoryShow)
-
 	admin.PUT("/category/edit/:id", controllers.CategoryEdit)
 	admin.DELETE("/category/delete/:id", controllers.CategoryDelete)
 
+	//标签
 	admin.POST("/label/create", controllers.LabelCreate)
 	admin.GET("/label/list", controllers.LabelList)
 	admin.GET("/label/show/:id", controllers.LabelShow)
 	admin.PUT("/label/edit/:id", controllers.LabelEdit)
 	admin.DELETE("/label/delete/:id", controllers.LabelDelete)
+
+	admin.POST("/timeline/create", controllers.TimeLineCreate)
+	admin.GET("/timeline/list", controllers.TimeLineList)
+
+
 
 }
